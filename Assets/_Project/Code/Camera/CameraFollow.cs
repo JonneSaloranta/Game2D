@@ -16,7 +16,7 @@ public class CameraFollow : MonoBehaviour {
         }
         rb = obj.GetComponent<Rigidbody2D>();
     }
-    private void FixedUpdate() {
+    private void LateUpdate() {
         if (obj == null) return;
         if (!isFollowing) return;
 
