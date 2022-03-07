@@ -7,37 +7,35 @@ public class Controls : MonoBehaviour {
 
     [SerializeField] float jumpForce;
 
+    [SerializeField] private LayerMask platformLayerMask;
+
     private Rigidbody2D rb;
     private BoxCollider2D boxCollider2D;
 
+    private PlayerControls playerControls;
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
         boxCollider2D = GetComponent<BoxCollider2D>();
 
-        PlayerControls playerControls = new PlayerControls();
-        playerControls.Movement.Enable();
+        playerControls = new PlayerControls();
         playerControls.Movement.Jump.performed += ctx => Jump();
     }
 
     public void Jump() {
         if (!isGrounded()) return;
-        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-        Debug.Log("Jump", this);
+        rb.velocity = new Vector2(rb.velocity.x, 0);
+        rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
     }
 
     private bool isGrounded() {
-        float extraHeightText = .01f;
-        RaycastHit2D raycastHit = Physics2D.Raycast(boxCollider2D.bounds.center, Vector2.down, boxCollider2D.bounds.extents.y + extraHeightText);
-        Color rayColor;
-        if (raycastHit.collider != null) {
-            rayColor = Color.green;
-        } else {
-            rayColor = Color.red;
-        }
+        return transform.Find("GroundCheck").GetComponent<GroundCheck>().isGrounded;
+    }
 
-        Debug.DrawRay(boxCollider2D.bounds.center, Vector2.down * (boxCollider2D.bounds.extents.y + extraHeightText), rayColor, 5f);
+    private void OnEnable() {
+        playerControls.Movement.Enable();
+    }
 
-        return raycastHit.collider != null;
-
+    private void OnDisable() {
+        playerControls.Movement.Disable();
     }
 }
