@@ -5,8 +5,16 @@ using UnityEngine;
 
 public class Controls : MonoBehaviour {
 
+    [Header("Jumping")]
     [SerializeField] float jumpForce;
     [SerializeField] float movementSpeed;
+    [SerializeField] float fallMultiplier = 2.5f;
+    [SerializeField] float lowJumpMultiplier = 2f;
+
+    [Header("Ground check")]
+    [SerializeField] private LayerMask groundLayerMask;
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private Vector2 groundCheckVector;
 
     private Rigidbody2D rb;
     private BoxCollider2D boxCollider2D;
@@ -16,12 +24,17 @@ public class Controls : MonoBehaviour {
     private float horizontalInput;
     private bool isFacingRight;
 
+    private bool isJumping;
+    private bool isLowJumping;
+
+
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
         boxCollider2D = GetComponent<BoxCollider2D>();
 
         playerControls = new PlayerControls();
         playerControls.Movement.Jump.performed += ctx => Jump();
+        playerControls.Movement.Jump.canceled += ctx => isLowJumping = true;
     }
 
     private void Update() {
@@ -36,6 +49,16 @@ public class Controls : MonoBehaviour {
             ChangeFacingDirection();
         } else if (isFacingRight && horizontalInput < 0) {
             ChangeFacingDirection();
+        }
+
+        FasterFall();
+    }
+
+    public void FasterFall() {
+        if (IsGrounded()) isLowJumping = false;
+
+        if (rb.velocity.y < 0) {
+            rb.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
         }
     }
 
@@ -53,7 +76,11 @@ public class Controls : MonoBehaviour {
     }
 
     private bool IsGrounded() {
-        return transform.Find("GroundCheck").GetComponent<GroundCheck>().isGrounded;
+        return Physics2D.OverlapBox(groundCheck.position, groundCheckVector, 0, groundLayerMask);
+    }
+
+    private void OnDrawGizmos() {
+        Gizmos.DrawWireCube(groundCheck.position, groundCheckVector);
     }
 
     private void OnEnable() {
