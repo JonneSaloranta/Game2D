@@ -22,7 +22,7 @@ public class Controls : MonoBehaviour {
     private PlayerControls playerControls;
 
     private float horizontalInput;
-    private bool isFacingRight;
+    private bool isFacingRight = true;
 
     private bool isJumping;
     private bool isLowJumping;
