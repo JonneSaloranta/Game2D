@@ -75,7 +75,7 @@ public class Controls : MonoBehaviour {
         transform.localScale = scaler;
     }
 
-    private bool IsGrounded() {
+    public bool IsGrounded() {
         return Physics2D.OverlapBox(groundCheck.position, groundCheckVector, 0, groundLayerMask);
     }
 
